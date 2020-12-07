@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "rm -rf .cache dist && parcel src/index.html",
-    "build": "rm -rf .cache dist && parcel build src/index.html"
+    "build": "rm -rf .cache dist && parcel build --public-url ./ src/index.html"
   },
   "author": "Vitaly Gordon",
   "license": "MIT",
