@@ -69,9 +69,9 @@ async function warmupAndDetermineAverageExecutionTime(
     for (let i = 0; i < numCycles; i++) {
       input = test(input)
     }
-    // Increase numCycles two-fold until execution time is more than 500ms
+    // Increase numCycles two-fold until execution time is more than 50ms
     const execTimeMs = performance.now() - t0
-    if (execTimeMs > 500) {
+    if (execTimeMs > 50) {
       return (execTimeMs * 1000) / numCycles // to µs
     }
     numCycles *= 2
