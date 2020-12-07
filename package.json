@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A browser-based tool for speedy and correct JS perf comparisons",
   "private": true,
+  "browserslist": [
+    "since 2017-06"
+  ],
   "scripts": {
     "start": "rm -rf .cache dist && parcel src/index.html",
     "build": "rm -rf .cache dist && parcel build --public-url ./ src/index.html"
