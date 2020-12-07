@@ -18,13 +18,13 @@ let defaultCode = `benchmark('${defaultTitle}', function initialValue() {
   return Math.random()
 }, {
   hypot(prev) {
-    const a = (prev + 0.0001) % 1
-    const b = (prev - 0.0001) % 1
+    const a = (prev + 1) % 1
+    const b = (prev - 1) % 1
     return Math.hypot(a, b);
   },
   sqrt(prev) {
-    const a = (prev + 0.0001) % 1
-    const b = (prev - 0.0001) % 1
+    const a = (prev + 1) % 1
+    const b = (prev - 1) % 1
     return Math.sqrt(a*a + b*b);
   }
 })
