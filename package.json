@@ -4,7 +4,8 @@
   "description": "A browser-based tool for speedy and correct JS perf comparisons",
   "private": true,
   "scripts": {
-    "start": "rm -rf .cache dist && parcel src/index.html"
+    "start": "rm -rf .cache dist && parcel src/index.html",
+    "build": "rm -rf .cache dist && parcel build src/index.html"
   },
   "author": "Vitaly Gordon",
   "license": "MIT",
