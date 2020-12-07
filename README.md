@@ -1,6 +1,6 @@
 # <a href="https://xpl.github.io/what-code-is-faster/">What Code Is Faster?</a>
 
-A browser-based tool for speedy and correct JS performance comparisons!
+**A browser-based tool for speedy and correct JS performance comparisons!**
 
 - Minimalistic UI
 - Code editor with IntelliSense
