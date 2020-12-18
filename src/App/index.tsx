@@ -98,8 +98,6 @@ export function App() {
   }
 
   const handleEditorDidMount: EditorDidMount = (getCode, editor) => {
-    // @ts-ignore
-    window.editor = editor
     editor.onDidChangeModelContent(() => {
       updateWithCode(getCode())
     })
