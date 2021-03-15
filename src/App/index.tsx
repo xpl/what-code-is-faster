@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import Editor, { EditorDidMount } from '@monaco-editor/react'
+import GithubButton from 'react-github-button'
 import pako from 'pako'
 
 import {
@@ -10,6 +11,7 @@ import {
   measureExecutionTime
 } from '../benchmark'
 
+import './gh-button.scss'
 import './index.scss'
 
 const defaultTitle = 'What Code Is Faster?'
@@ -132,7 +134,14 @@ export function App() {
 
   return (
     <div className="app">
-      <h1>{state.title}</h1>
+      <header>
+        <h1>{state.title}</h1>
+        <div className="menu">
+          <a href="https://github.com/xpl/what-code-is-faster#how-does-it-work">README.md</a>
+          <a href="https://github.com/xpl/what-code-is-faster#examples">Examples</a>
+        </div>
+        <GithubButton namespace="xpl" repo="what-code-is-faster" size="large" type="stargazers" />
+      </header>
       <div className="editor">
         <Editor
           language="javascript"
