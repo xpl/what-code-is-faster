@@ -11,7 +11,7 @@
 
 <a href="https://xpl.github.io/what-code-is-faster/"><img width="100%" alt="Try it online!" src="https://user-images.githubusercontent.com/1707/101344538-af2ace00-3896-11eb-808c-824a228dc50f.png"></a>
 
-## How it works?
+## How Does It Work?
 
 Benchmarked functions must be written as _reducers_, i.e. taking a previous value and returning some other value. The runtime executes your functions in a tight loop against some random initial value, saving the final value to a global variable (this producing a _side effect_), so that no smart compiler could optimize out our computation!
 
