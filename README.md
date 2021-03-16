@@ -13,7 +13,7 @@
 
 ## How Does It Work?
 
-Benchmarked functions must be written as _reducers_, i.e. taking a previous value and returning some other value. The runtime executes your functions in a tight loop against some random initial value, saving the final value to a global variable (thus producing a _side effect_), so that no smart compiler could optimize out our computation!
+Benchmarked functions are written as _reducers_, i.e. taking a previous value and returning some other value. The runtime executes your functions in a tight loop against some random initial value, saving the final value to a global variable (thus producing a _side effect_), so that no smart compiler could optimize out our computation!
 
 So you must also provide a random initial value (not [something like that](https://xkcd.com/221/)) and ensure that your reducers follow some simple rules. **Those rules are programmatically enforced** — so you won't shoot yourself in the foot. Check the examples to get a sense of how to write a benchmark.
 
