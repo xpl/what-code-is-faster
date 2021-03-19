@@ -13,7 +13,7 @@
 
 ## How Does It Work?
 
-Benchmarked functions must be written as _reducers_, i.e. taking a previous value and returning some other value. The runtime executes your functions in a tight loop against some random initial value, saving the final value to a global variable (thus producing a _side effect_), so that no smart compiler could optimize out our computation!
+Benchmarked functions are written as _reducers_, i.e. taking a previous value and returning some other value. The runtime executes your functions in a tight loop against some random initial value, saving the final value to a global variable (thus producing a _side effect_), so that no smart compiler could optimize out our computation!
 
 So you must also provide a random initial value (not [something like that](https://xkcd.com/221/)) and ensure that your reducers follow some simple rules. **Those rules are programmatically enforced** — so you won't shoot yourself in the foot. Check the examples to get a sense of how to write a benchmark.
 
@@ -31,4 +31,5 @@ The rules:
 - <a href="https://xpl.github.io/what-code-is-faster/?code=eNqVj7GOwkAMRPv9iunYFRE6WlCQ7gOokOj3gkNWBC9yNrmcUP6ddUiNdC5ceMZvbC%2BCEt8i%2Fm9TS7zbJ1ria2p22H7lwlTAjgWCQ3nI3XSU8gLTL06UrBdxxvwQV83dy82u6ihoY3wgDiRqwdC98asCdc9VCpEROKTg27Nve7IOTwMIpV4YR5%2BajXi%2B5FOcyeGqKWtm2IfQ8PYDGmWryF3CiFhDb1kkQI1Ylxj382Ca%2B5Khmo6nYmHrJ5%2FI%2Bed%2Fks3kzAvj%2BGda">For..of loop over Set vs. Array</a>
 - <a href="https://xpl.github.io/what-code-is-faster/?code=eNp1kD9PwzAQxfd8ittqo8iFsiEViYGBgTIgsUQRclw3cZ2cK9sBqpLvzuVPq1aiHiL53vu9vLNyGCKsYAl3t3QSNdy9xLVrXnCtf0hhHJaPwF5lrMSo0OQGVhx%2B4UhYvQ9kffJe7sXGk%2BUAtcYyVg%2BU3qVTyEWGiO49eoMlu19wEWqjNFtwfpb4IetW97n9RTRyx2yfktl0mGRnPRnP8yNKRmJQf9P%2FCDkFHXVXbEl%2FK7ZaxaHsM1IPHS6sSaFRVY30ls0oBr6CmBBgtXO23fFZCpsWVTQOwaCJRtYDTbseEgCvY%2Bvxv6YJPUjvoKKfYxazI3OiSBKljv18Pp%2BGYdiJ8sjYpfShRa7xJGU2v8ImHU%2F%2BAAGxpI8%3D">Map vs. Object (lookup)</a>
 - <a href="https://xpl.github.io/what-code-is-faster/?code=eNqtkD9TgzAYxvd8imfxSCzHgSN3yOnmoIvn5DmkECRXSGoaPGrlu5uArdDFpev7Pn%2Fe91dotbPgxvD9s%2FwSyJDEcUyKcWy4KnX71LVrYXZudedlUWV0Sw9ohHq3dTrzDiEkslvca90IrqjEFW4YW4S9qFJUUonS5y3yo5Zvae%2F9PXJ0Rx1S9Ozsnqb5x62cZDKStVBF3XKzoYE3QptZNhUfHW%2Bk3aOoRbFheRCi6lRhpVaQSlrJmwen7inDgQBG2M4o0Edu62jqd5vrkVkcM3wjJo6ClwanloBujfgcY6YUYHrHwcLfDiskzBE78RyVv43n8F7lG7Ism72Su7gUcpU42xD6AzyEy3WP1I%2B1I99FIxkY%2BQHRKbx2">Null or undefined? (equality check)</a>
+- <a href="https://xpl.github.io/what-code-is-faster/?code=eNqNkNFKwzAUhu%2FzFP%2BNLHEhdF4qE%2FYA9kq8GUNO03QNpmlJ08GYfXfTVhFFZBc5OQlfPv6TavA62taDyvK5DsbkQ1OY0HOSKCS0wIUBwcQhJAZrFGnpBzYy3fo%2BIscWmyz7PFEIdE43u2lXVWgbfoEz%2Fhjr%2B4SOEvxVwgpsH7G3qUuyzbLdHQRjhfG6bii88VXfBUMlTr2CJufmhrrOnVcS1Vdo62205F7IDYb%2FiMqfKNYqkC9TBoFb5ALvyFiKMFGLnad6Wp59z%2FjrH5RS81T7iT0I3CBP%2BChTmXJdoVAz5wfnJP6xzcNdo1vAxfeXjI2CfQDZNZNS">Arguments passing: spread vs. call() vs. apply()</a>
 - <i>..Add your own? Pull Requests are welcome!</i>
