@@ -58,20 +58,23 @@ export function checkSoundness({ initialValue, tests }: BenchmarkInput) {
   }
 }
 
-async function warmupAndDetermineAverageExecutionTime(
+const microsecondsPerSample = 100 * 1000
+
+async function quicklyDetermineRoughAverageExecutionTime(
   test: TestFunction,
   theInitialValue: any
 ): Promise<Microseconds> {
   let numCycles = 32
+  let input = theInitialValue
   while (true) {
-    let input = theInitialValue
     let t0 = performance.now()
+    input = theInitialValue
     for (let i = 0; i < numCycles; i++) {
       input = test(input)
     }
-    // Increase numCycles two-fold until execution time is more than 500ms
+    // Increase numCycles two-fold until execution time is more than 50ms
     const execTimeMs = performance.now() - t0
-    if (execTimeMs > 500) {
+    if (execTimeMs > 50) {
       return (execTimeMs * 1000) / numCycles // to µs
     }
     numCycles *= 2
@@ -81,31 +84,62 @@ async function warmupAndDetermineAverageExecutionTime(
 }
 
 export async function measureExecutionTime(
-  { initialValue, tests }: BenchmarkInput,
+  input: BenchmarkInput,
   onProgress: ProgressCallback = (status: string, progress: number) => {}
 ) {
-  checkSoundness({ initialValue, tests })
+  checkSoundness(input)
 
-  const numSamples = 50
-  const microsecondsPerSample = 100 * 1000
+  const warmupRuns = 3
+  const warmupSamples = 5
+  const measureSamples = 50
+  const totalNumSamples = input.tests.length * (warmupSamples * warmupRuns + measureSamples)
+  let samplesCollected = 0
+
   const cyclesPerSample: { [key: string]: Microseconds } = {}
-  const results: Results = []
-  const theInitialValue = initialValue()
+  const theInitialValue = input.initialValue()
 
-  for (const test of tests) {
-    onProgress(`Warming up ${test.name}()...`, 0)
-    const avgTime = await warmupAndDetermineAverageExecutionTime(test, theInitialValue) // µs
+  for (const test of input.tests) {
+    onProgress(`Preparing ${test.name}()...`, 0)
+    const avgTime = await quicklyDetermineRoughAverageExecutionTime(test, theInitialValue) // µs
     cyclesPerSample[test.name] = Math.ceil(microsecondsPerSample / avgTime)
   }
 
-  let totalNumSamples = tests.length * numSamples
+  for (let i = 0; i < warmupRuns; i++) {
+    const results = await runSampling(
+      input.tests,
+      5,
+      cyclesPerSample,
+      theInitialValue,
+      (name, i) => {
+        onProgress(`Warming up ${name}(), sample #${i}...`, ++samplesCollected / totalNumSamples)
+      }
+    )
+    for (const result of results) {
+      cyclesPerSample[result.name] = microsecondsPerSample / result.minExecutionTime
+    }
+  }
+
+  return runSampling(input.tests, measureSamples, cyclesPerSample, theInitialValue, (name, i) => {
+    onProgress(`Measuring ${name}(), sample #${i}...`, ++samplesCollected / totalNumSamples)
+  })
+}
+
+async function runSampling(
+  tests: BenchmarkInput['tests'],
+  numSamples: number,
+  cyclesPerSample: { [key: string]: Microseconds },
+  theInitialValue: any,
+  onProgress = (name: string, sample: number) => {}
+) {
   let samplesCollected = 0
+  let input = theInitialValue
+  const results: Results = []
 
   for (const test of tests) {
     const numCycles = cyclesPerSample[test.name]
     const executionTimes: Microseconds[] = []
     const outputs: any[] = []
-    let input = theInitialValue
+    input = theInitialValue
 
     for (let i = 0; i < numSamples; i++) {
       let t0 = performance.now()
@@ -114,9 +148,7 @@ export async function measureExecutionTime(
         input = test(input)
       }
 
-      samplesCollected++
-      const progress = samplesCollected / totalNumSamples
-      onProgress(`Measuring ${test.name}(), sample #${i}...`, progress)
+      onProgress(test.name, i)
 
       executionTimes.push(((performance.now() - t0) * 1000) / numCycles)
       outputs.push(input)
