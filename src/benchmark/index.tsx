@@ -60,11 +60,11 @@ export function checkSoundness({ initialValue, tests }: BenchmarkInput) {
 
 async function warmupAndDetermineAverageExecutionTime(
   test: TestFunction,
-  initialValue: InitialValueFunction
+  theInitialValue: any
 ): Promise<Microseconds> {
   let numCycles = 32
   while (true) {
-    let input = initialValue()
+    let input = theInitialValue
     let t0 = performance.now()
     for (let i = 0; i < numCycles; i++) {
       input = test(input)
@@ -90,10 +90,11 @@ export async function measureExecutionTime(
   const microsecondsPerSample = 100 * 1000
   const cyclesPerSample: { [key: string]: Microseconds } = {}
   const results: Results = []
+  const theInitialValue = initialValue()
 
   for (const test of tests) {
     onProgress(`Warming up ${test.name}()...`, 0)
-    const avgTime = await warmupAndDetermineAverageExecutionTime(test, initialValue) // µs
+    const avgTime = await warmupAndDetermineAverageExecutionTime(test, theInitialValue) // µs
     cyclesPerSample[test.name] = Math.ceil(microsecondsPerSample / avgTime)
   }
 
@@ -104,9 +105,9 @@ export async function measureExecutionTime(
     const numCycles = cyclesPerSample[test.name]
     const executionTimes: Microseconds[] = []
     const outputs: any[] = []
+    let input = theInitialValue
 
     for (let i = 0; i < numSamples; i++) {
-      let input = initialValue()
       let t0 = performance.now()
 
       for (let j = 0; j < numCycles; j++) {
