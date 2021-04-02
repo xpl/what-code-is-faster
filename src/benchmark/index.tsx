@@ -107,7 +107,7 @@ export async function measureExecutionTime(
   for (let i = 0; i < warmupRuns; i++) {
     const results = await runSampling(
       input.tests,
-      5,
+      warmupSamples,
       cyclesPerSample,
       theInitialValue,
       (name, i) => {
