@@ -25,7 +25,7 @@ function defaultEqual(a: any, b: any) {
 }
 
 export function checkSoundness({ initialValues, equal = defaultEqual, tests }: BenchmarkInput) {
-  if (equal(initialValues(), initialValues())) {
+  if (deepEqual(initialValues(), initialValues())) {
     throw new Error('initialValue() must return random values!')
   }
   if (!tests.length) {
