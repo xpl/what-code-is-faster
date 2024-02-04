@@ -26,6 +26,7 @@ The rules:
 
 ## Examples
 
+- <a href="https://xpl.github.io/what-code-is-faster/?code=eNp9Tz0PgjAQ3fkVb7NVYmAlYXFzcHW%2FQgONcGhbWJT%2FLrSwONjh0nt37%2BOU5qrtyT7EQZnGsMfkwGOvtIWgujbeDCwPKd4JYHhpqbtTN2onZMCAamDn4bSuUSLPwsMJ4ka%2BPVvieuiX3WMYSXyQBZbVfrS8SQD">BigInt vs. number (addition)</a>
 - <a href="https://xpl.github.io/what-code-is-faster/?code=eNq1jsEKwjAQRO%2F5irlIE41CzyJ%2BgVfvmxppsN3UbSqI9N%2BtqUh%2FwMvC7pudGee5qluSmy5OlOpd%2FexiQhTkrb9LOhYW14GrFCIjcEiBmjM1g9cGLwWIT4PwrBfiS2y1UaPNLLvpTvxj1gJV5D6BcEA%2BY4PSYIVyAd0PbpdwmTP7koUz%2BwmOdhqfrn%2BIyra0pundrb9xajTqDeIvWf8%3D">Math.hypot or Math.sqrt?</a>
 - <a href="https://xpl.github.io/what-code-is-faster/?code=eNqVjz0OwjAMhfecwgtqIiokTsCC2FjZTZrSiNRB%2BUFFKHcnSaVCR5Yo9nvPn91HkkFbgj4SnwS8wakQHcEZw7Dzuja3cyWtL1Vi7KpIDiO6O2%2BOFoyVaMqAeVKnpEGH5e8hZwIgvcKg6XZo2q9Nkw4azQVNVDyDGazQDqmzIxcstVVTU1CO0PCHU8%2FZvgTK7qUNG9iLLKQ2P3WrlXtBV%2Bn0x8E%2FrCW7ArIk2AdkO2vC">Do local function declarations affect performance?</a>
 - <a href="https://xpl.github.io/what-code-is-faster/?code=eNqNj70OwjAMhPc8hRfURFRIzAixIDZW9hBSGpE6yElQEcq7k7Si%2FEwsluw732c3EVUwDqGJyHsBDyAdIiHsZWgX3gzD%2Bdgp50uXGDtqVG0n6cKrrQNlnY%2BkPWRDAIn30Bo8b6q6hI7pBk0w0h6kjZpnCoMvDkk8uY4LlupB033QhNLyK%2BnbaJ8WyqFlDDNYiiykOhfr1I97Qg%2FSLi%2BV55TDfGIPa3hFrP55%2BAP%2FjitslgR7AtISZ6c%3D">Do closures affect performance (vs. free functions)?</a>
@@ -35,3 +36,29 @@ The rules:
 - <a href="https://xpl.github.io/what-code-is-faster/?code=eNqNkNFKwzAUhu%2FzFP%2BNLHEhdF4qE%2FYA9kq8GUNO03QNpmlJ08GYfXfTVhFFZBc5OQlfPv6TavA62taDyvK5DsbkQ1OY0HOSKCS0wIUBwcQhJAZrFGnpBzYy3fo%2BIscWmyz7PFEIdE43u2lXVWgbfoEz%2Fhjr%2B4SOEvxVwgpsH7G3qUuyzbLdHQRjhfG6bii88VXfBUMlTr2CJufmhrrOnVcS1Vdo62205F7IDYb%2FiMqfKNYqkC9TBoFb5ALvyFiKMFGLnad6Wp59z%2FjrH5RS81T7iT0I3CBP%2BChTmXJdoVAz5wfnJP6xzcNdo1vAxfeXjI2CfQDZNZNS">Arguments passing: spread vs. call() vs. apply()</a>
 - <a href="https://xpl.github.io/what-code-is-faster/?code=eNqFjsEKgzAQRO%2F5iiUUklCR9ir0BwptD4VeRDBqxNAYJUYvIf%2FeqNBaKPS07M7OmymELpuWmycl5%2FvtGvfcDAKmAcTEFYmgHnVpZadBamklVw%2BuRkEZOARghB2Nhgu3TWy4rrqWMuSjRdvQCO2NmFbL2%2FSRae5w3XU4cbjgBifpzs3%2FsIejz7zPWUqCTLKUBDmMQxY4Ppozlo5fdCUsLNRqWecHmq8HOMGfoG2%2F1fMzGnmGXucCYXA%3D">JSON.parse() vs. eval()</a>
 - <i>..Add your own? Pull Requests are welcome!</i>
+
+## Extended Configuration
+
+In case you test functions operate on differently typed inputs, you might need to provide distinct initial values and provide customized comparison function, otherwise it won't pass the soundness check. Here is an example:
+
+```js
+benchmark('bigint vs number (addition)', {
+  initialValues() {
+    const seed = 1000000 + (Math.random() * 1000) | 0
+    return {
+      bigint: BigInt(seed),
+      number: seed,
+    }
+  },
+  equal(a, b) {
+    return BigInt(a) === BigInt(b)
+  }
+}, {
+  bigint(prev) {
+    return prev + 1n
+  },
+  number(prev) {
+    return prev + 1
+  }
+})
+```
