@@ -39,7 +39,7 @@ The rules:
 
 ## Extended Configuration
 
-In case you test functions operate on differently typed inputs, you might need to provide distinct initial values and provide customized comparison function, otherwise it won't pass the soundness check. Here is an example:
+In case you test functions operate on differently typed inputs, you might need to provide distinct initial values and provide a customized comparison function, otherwise it won't pass the soundness check. Here is an example:
 
 ```js
 benchmark('bigint vs number (addition)', {
