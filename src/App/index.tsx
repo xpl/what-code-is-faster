@@ -4,7 +4,8 @@ import GithubButton from 'react-github-button'
 import pako from 'pako'
 
 import {
-  InitialValueFunction,
+  InitialValuesFunction,
+  EqualFunction,
   TestFunction,
   BenchmarkInput,
   Results,
@@ -51,7 +52,7 @@ if (codeParam) {
   try {
     defaultCode = decompress(codeParam) || defaultCode
   } catch (e) {
-    defaultCode = `// Failed to decode URL: ${e.toString()}`
+    defaultCode = `// Failed to decode URL: ${(e as Error).toString()}`
   }
 }
 
@@ -83,19 +84,30 @@ export function App() {
       const fn = new Function('benchmark', code)
       fn(function benchmark(
         name: string,
-        initialValue: InitialValueFunction,
-        tests: { [key: string]: TestFunction }
+        opts: { initialValues: InitialValuesFunction, equal?: EqualFunction } | (() => any),
+        tests: Record<string, TestFunction>
       ) {
         document.title = name
+        if (typeof opts === 'function') { // normalize legacy opts format (it was just a single InitialValueFunction)
+          const initialValue = opts
+          opts = {
+            initialValues() {
+              const result: Record<string, any> = {}
+              const seed = initialValue()
+              for (const name of Object.keys(tests)) result[name] = seed
+              return result
+            }
+          }
+        }
         setState({
           title: name,
-          benchmarkInput: { initialValue, tests: Object.values(tests) }
+          benchmarkInput: { tests: Object.values(tests), ...opts }
         })
       })
       setError(undefined)
     } catch (e) {
       console.error(e)
-      setError(e)
+      setError(e as Error)
     }
   }
 
@@ -120,7 +132,7 @@ export function App() {
         setProgress(undefined)
       }
     } catch (e) {
-      setError(e)
+      setError(e as Error)
     }
   }
 

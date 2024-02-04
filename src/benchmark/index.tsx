@@ -1,8 +1,9 @@
 import deepEqual from 'deep-equal'
 
-export type InitialValueFunction = () => any
+export type InitialValuesFunction = () => any
 export type TestFunction = (input: any) => any
-export type BenchmarkInput = { initialValue: InitialValueFunction; tests: TestFunction[] }
+export type EqualFunction = (a: any, b: any) => any
+export type BenchmarkInput = { initialValues: InitialValuesFunction; equal?: EqualFunction, tests: TestFunction[] }
 
 export type Microseconds = number
 
@@ -14,7 +15,7 @@ export type Results = Array<{
   outputs: any[]
 }>
 
-function equal(a: any, b: any) {
+function defaultEqual(a: any, b: any) {
   // TODO: provide custom comparator to deepEqual
   if (typeof a === 'number' && typeof b === 'number') {
     return Math.abs(a - b) < 0.00000001
@@ -23,8 +24,8 @@ function equal(a: any, b: any) {
   }
 }
 
-export function checkSoundness({ initialValue, tests }: BenchmarkInput) {
-  if (equal(initialValue(), initialValue())) {
+export function checkSoundness({ initialValues, equal = defaultEqual, tests }: BenchmarkInput) {
+  if (equal(initialValues(), initialValues())) {
     throw new Error('initialValue() must return random values!')
   }
   if (!tests.length) {
@@ -37,22 +38,23 @@ export function checkSoundness({ initialValue, tests }: BenchmarkInput) {
     if (!test.name) {
       throw new Error('All test functions must have names')
     }
-    const seed = initialValue()
-    if (!equal(test(seed), test(seed))) {
+    const seed = initialValues()
+    if (!equal(test(seed[test.name]), test(seed[test.name]))) {
       throw new Error(
         `${test.name}() must depend only on its input (seems that it returns random results...)`
       )
     }
-    if (equal(test(initialValue()), test(initialValue()))) {
+    if (equal(test(initialValues()[test.name]), test(initialValues()[test.name]))) {
       throw new Error(
         `${test.name}() must depend on its input (seems that it returns the same result regardless of that...)`
       )
     }
   }
-  const seed = initialValue()
-  const val = tests[0](seed)
+  const seed = initialValues()
+  const result0 = tests[0](seed[tests[0].name])
   for (const test of tests) {
-    if (!equal(test(seed), val)) {
+    const result = test(seed[test.name])
+    if (!equal(result, result0)) {
       throw new Error(`The output of ${test.name}() must be the same as of ${tests[0].name}()`)
     }
   }
@@ -85,7 +87,7 @@ async function quicklyDetermineRoughAverageExecutionTime(
 
 export async function measureExecutionTime(
   input: BenchmarkInput,
-  onProgress: ProgressCallback = (status: string, progress: number) => {}
+  onProgress: ProgressCallback = (status: string, progress: number) => { }
 ) {
   checkSoundness(input)
 
@@ -96,11 +98,11 @@ export async function measureExecutionTime(
   let samplesCollected = 0
 
   const cyclesPerSample: { [key: string]: Microseconds } = {}
-  const theInitialValue = input.initialValue()
+  const initialValues = input.initialValues()
 
   for (const test of input.tests) {
     onProgress(`Preparing ${test.name}()...`, 0)
-    const avgTime = await quicklyDetermineRoughAverageExecutionTime(test, theInitialValue) // µs
+    const avgTime = await quicklyDetermineRoughAverageExecutionTime(test, initialValues[test.name]) // µs
     cyclesPerSample[test.name] = Math.ceil(microsecondsPerSample / avgTime)
   }
 
@@ -109,7 +111,7 @@ export async function measureExecutionTime(
       input.tests,
       warmupSamples,
       cyclesPerSample,
-      theInitialValue,
+      initialValues,
       (name, i) => {
         onProgress(`Warming up ${name}(), sample #${i}...`, ++samplesCollected / totalNumSamples)
       }
@@ -119,7 +121,7 @@ export async function measureExecutionTime(
     }
   }
 
-  return runSampling(input.tests, measureSamples, cyclesPerSample, theInitialValue, (name, i) => {
+  return runSampling(input.tests, measureSamples, cyclesPerSample, initialValues, (name, i) => {
     onProgress(`Measuring ${name}(), sample #${i}...`, ++samplesCollected / totalNumSamples)
   })
 }
@@ -128,18 +130,18 @@ async function runSampling(
   tests: BenchmarkInput['tests'],
   numSamples: number,
   cyclesPerSample: { [key: string]: Microseconds },
-  theInitialValue: any,
-  onProgress = (name: string, sample: number) => {}
+  initialValues: Record<string, any>,
+  onProgress = (name: string, sample: number) => { }
 ) {
   let samplesCollected = 0
-  let input = theInitialValue
+  let input: any = null
   const results: Results = []
 
   for (const test of tests) {
     const numCycles = cyclesPerSample[test.name]
     const executionTimes: Microseconds[] = []
     const outputs: any[] = []
-    input = theInitialValue
+    input = initialValues[test.name]
 
     for (let i = 0; i < numSamples; i++) {
       let t0 = performance.now()
