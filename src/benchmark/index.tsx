@@ -52,7 +52,7 @@ export function checkSoundness({ initialValues, equal = defaultEqual, tests }: B
   }
   const seed = initialValues()
   const result0 = tests[0](seed[tests[0].name])
-  for (const test of tests) {
+  for (const test of tests.slice(1)) {
     const result = test(seed[test.name])
     if (!equal(result, result0)) {
       throw new Error(`The output of ${test.name}() must be the same as of ${tests[0].name}()`)
