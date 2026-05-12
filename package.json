@@ -24,6 +24,13 @@
     "dist/npm",
     "dist/npm-esm"
   ],
+  "targets": {
+    "app": {
+      "source": "src/index.html",
+      "distDir": "dist",
+      "publicUrl": "./"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -32,8 +39,9 @@
   ],
   "scripts": {
     "start": "rm -rf .parcel-cache .cache dist && parcel src/index.html",
-    "build": "npm run build:app && npm run build:package",
-    "build:app": "rm -rf .parcel-cache .cache dist && parcel build --public-url ./ src/index.html",
+    "build": "npm run build:app",
+    "build:app": "rm -rf .parcel-cache .cache dist && parcel build --target app",
+    "build:all": "npm run build:app && npm run build:package",
     "build:package": "npm run build:package:cjs && npm run build:package:esm",
     "build:package:cjs": "tsc -p tsconfig.package.json",
     "build:package:esm": "tsc -p tsconfig.package.esm.json && node scripts/prepare-esm-package.js",
