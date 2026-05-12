@@ -1,18 +1,48 @@
 {
   "name": "what-code-is-faster",
   "version": "1.0.0",
-  "description": "A browser-based tool for speedy and correct JS perf comparisons",
-  "private": true,
+  "description": "Speedy and correct JS perf comparisons",
+  "main": "dist/npm/package.js",
+  "module": "dist/npm-esm/package.mjs",
+  "types": "dist/npm/package.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/npm/package.d.ts",
+      "import": "./dist/npm-esm/package.mjs",
+      "require": "./dist/npm/package.js",
+      "default": "./dist/npm-esm/package.mjs"
+    },
+    "./common": {
+      "types": "./dist/npm/benchmark/index.d.ts",
+      "import": "./dist/npm-esm/benchmark/index.mjs",
+      "require": "./dist/npm/benchmark/index.js",
+      "default": "./dist/npm-esm/benchmark/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/npm",
+    "dist/npm-esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "browserslist": [
     "since 2017-06"
   ],
   "scripts": {
     "start": "rm -rf .parcel-cache .cache dist && parcel src/index.html",
-    "build": "rm -rf .parcel-cache .cache dist && parcel build --public-url ./ src/index.html"
+    "build": "npm run build:app && npm run build:package",
+    "build:app": "rm -rf .parcel-cache .cache dist && parcel build --public-url ./ src/index.html",
+    "build:package": "npm run build:package:cjs && npm run build:package:esm",
+    "build:package:cjs": "tsc -p tsconfig.package.json",
+    "build:package:esm": "tsc -p tsconfig.package.esm.json && node scripts/prepare-esm-package.js",
+    "prepack": "npm run build:package"
   },
   "author": "Vitaly Gordon",
   "license": "MIT",
   "devDependencies": {
+    "@monaco-editor/react": "3.7.2",
     "@parcel/transformer-sass": "2.11.0",
     "@types/deep-equal": "1.0.1",
     "@types/pako": "1.0.1",
@@ -20,23 +50,22 @@
     "@types/react-dom": "^16.9.9",
     "@types/react-github-button": "0.1.0",
     "buffer": "6.0.3",
-    "path-browserify": "1.0.1",
-    "process": "0.11.10",
-    "util": "0.12.5"
-  },
-  "dependencies": {
-    "@monaco-editor/react": "3.7.2",
-    "deep-equal": "2.0.5",
     "monaco-editor": "0.21.2",
     "pako": "2.0.2",
     "panic-overlay": "1.0.42",
+    "path-browserify": "1.0.1",
     "parcel": "^2.11.0",
     "prettier": "^2.1.2",
     "prop-types": "15.7.2",
+    "process": "0.11.10",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-github-button": "0.1.11",
     "sass": "1.29.0",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "util": "0.12.5"
+  },
+  "dependencies": {
+    "deep-equal": "2.0.5"
   }
 }

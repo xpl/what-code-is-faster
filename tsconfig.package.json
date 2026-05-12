@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": false,
+    "declaration": true,
+    "isolatedModules": false,
+    "module": "commonjs",
+    "noEmit": false,
+    "outDir": "dist/npm",
+    "rootDir": "src"
+  },
+  "include": ["src/package.ts", "src/cli/index.ts", "src/benchmark/index.tsx"]
+}

@@ -52,23 +52,41 @@ The rules:
 In case you test functions operate on differently typed inputs, you might need to provide distinct initial values and provide a customized comparison function, otherwise it won't pass the soundness check. Here is an example:
 
 ```js
-benchmark('bigint vs number (addition)', {
-  initialValues() {
-    const seed = 1000000 + (Math.random() * 1000) | 0
-    return {
-      bigint: BigInt(seed),
-      number: seed,
+benchmark(
+  'bigint vs number (addition)',
+  {
+    initialValues() {
+      const seed = (1000000 + Math.random() * 1000) | 0
+      return {
+        bigint: BigInt(seed),
+        number: seed
+      }
+    },
+    equal(a, b) {
+      return BigInt(a) === BigInt(b)
     }
   },
-  equal(a, b) {
-    return BigInt(a) === BigInt(b)
+  {
+    bigint(prev) {
+      return prev + 1n
+    },
+    number(prev) {
+      return prev + 1
+    }
   }
-}, {
-  bigint(prev) {
-    return prev + 1n
-  },
-  number(prev) {
-    return prev + 1
-  }
-})
+)
 ```
+
+## npm package
+
+```sh
+npm install what-code-is-faster
+```
+
+```js
+import { benchmark } from 'what-code-is-faster'
+```
+
+Works same as `benchmark` in UI, but prints results with `console` (node/browsers).
+
+There also lower level `checkSoundness` and `measureExecutionTime` exports if you need to build a custom progress/results reporter.

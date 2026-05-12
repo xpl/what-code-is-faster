@@ -15,6 +15,13 @@ export type Results = Array<{
   outputs: any[]
 }>
 
+export class BenchmarkSoundnessError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'BenchmarkSoundnessError'
+  }
+}
+
 function defaultEqual(a: any, b: any) {
   // TODO: provide custom comparator to deepEqual
   if (typeof a === 'number' && typeof b === 'number') {
@@ -26,26 +33,26 @@ function defaultEqual(a: any, b: any) {
 
 export function checkSoundness({ initialValues, equal = defaultEqual, tests }: BenchmarkInput) {
   if (deepEqual(initialValues(), initialValues())) {
-    throw new Error('initialValue() must return random values!')
+    throw new BenchmarkSoundnessError('initialValue() must return random values!')
   }
   if (!tests.length) {
-    throw new Error('Define at least one test function')
+    throw new BenchmarkSoundnessError('Define at least one test function')
   }
   for (const test of tests) {
     if (typeof test !== 'function') {
-      throw new Error(`All tests must be functions!`)
+      throw new BenchmarkSoundnessError(`All tests must be functions!`)
     }
     if (!test.name) {
-      throw new Error('All test functions must have names')
+      throw new BenchmarkSoundnessError('All test functions must have names')
     }
     const seed = initialValues()
     if (!equal(test(seed[test.name]), test(seed[test.name]))) {
-      throw new Error(
+      throw new BenchmarkSoundnessError(
         `${test.name}() must depend only on its input (seems that it returns random results...)`
       )
     }
     if (equal(test(initialValues()[test.name]), test(initialValues()[test.name]))) {
-      throw new Error(
+      throw new BenchmarkSoundnessError(
         `${test.name}() must depend on its input (seems that it returns the same result regardless of that...)`
       )
     }
@@ -55,7 +62,9 @@ export function checkSoundness({ initialValues, equal = defaultEqual, tests }: B
   for (const test of tests.slice(1)) {
     const result = test(seed[test.name])
     if (!equal(result, result0)) {
-      throw new Error(`The output of ${test.name}() must be the same as of ${tests[0].name}()`)
+      throw new BenchmarkSoundnessError(
+        `The output of ${test.name}() must be the same as of ${tests[0].name}()`
+      )
     }
   }
 }
